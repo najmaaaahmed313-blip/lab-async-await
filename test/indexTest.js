@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { JSDOM } = require('jsdom');
 const babel = require('@babel/core');
+const requestedUrls = [];
 
 // Load HTML content
 const html = fs.readFileSync(path.resolve(__dirname, '..', 'index.html'), 'utf-8');
@@ -24,6 +25,16 @@ const dom = new JSDOM(html, {
 //Handle fetch
 const fetchPkg = 'node_modules/whatwg-fetch/dist/fetch.umd.js';
 dom.window.eval(fs.readFileSync(fetchPkg, 'utf-8'));
+dom.window.fetch = async (url) => {
+  requestedUrls.push(url);
+  return {
+    ok: true,
+    json: async () => [{
+      title: 'sunt aut facere repellat provident occaecati excepturi optio reprehenderit',
+      body: 'quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae molestiae'
+    }]
+  };
+};
 
 // Inject the transformed JavaScript into the virtual DOM
 const scriptElement = dom.window.document.createElement("script");
@@ -45,12 +56,17 @@ describe('Asynchronous Fetching ', () => {
     await new Promise(resolve => setTimeout(resolve, 200)); 
     let postDisplay = document.querySelector("#post-list")
     expect(postDisplay.innerHTML).to.include('sunt aut')
+    expect(requestedUrls).to.include('https://jsonplaceholder.typicode.com/posts')
     
   })
   it('should create an h1 and p element to add', async() => {
     await new Promise(resolve => setTimeout(resolve, 200)); 
-    let h1 = document.querySelector("h1")
-    let p = document.querySelector("p")
+    const postList = document.querySelector("#post-list");
+    const post = postList.querySelector("li");
+    const h1 = post.querySelector("h1");
+    const p = post.querySelector("p");
+
+    expect(postList.children).to.have.lengthOf(1);
     expect(h1.textContent).to.include("sunt aut facere repellat")
     expect(p.textContent).to.include("quia et suscipit\nsuscipit")
   })
