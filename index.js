@@ -20,6 +20,7 @@ function displayPosts(posts) {
 
 async function fetchPosts() {
 	const postStatus = document.querySelector("#post-status");
+	postStatus.textContent = "Loading posts...";
 
 	try {
 		const response = await fetch(postsUrl);

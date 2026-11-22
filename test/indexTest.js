@@ -57,6 +57,7 @@ describe('Asynchronous Fetching ', () => {
     let postDisplay = document.querySelector("#post-list")
     expect(postDisplay.innerHTML).to.include('sunt aut')
     expect(requestedUrls).to.include('https://jsonplaceholder.typicode.com/posts')
+    expect(document.querySelector("#post-status").textContent).to.equal("")
     
   })
   it('should create an h1 and p element to add', async() => {
